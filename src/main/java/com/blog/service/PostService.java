@@ -13,12 +13,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
-    public void write(PostCreate postCreate){
+    public Long write(PostCreate postCreate){
         Post post = Post.builder()
                 .title(postCreate.getTitle())
                 .content(postCreate.getContent())
                 .build();
-
         postRepository.save(post);
+
+        return post.getId();
     }
 }
