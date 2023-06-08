@@ -9,8 +9,8 @@ import javax.validation.constraints.NotBlank;
 @Getter
 public class PostCreate {
 
-    @NotBlank
+    @NotBlank(message = "{NotBlank.title}")
     private String title;
-    @NotBlank
+    @NotBlank(message = "{NotBlank.content")
     private String content;
 }
