@@ -26,6 +26,10 @@ public class ExceptionController {
                 .map(v -> new ValidationDto(v.getField(), v.getDefaultMessage()))
                 .collect(Collectors.toList());
 
-        return new ErrorResponse("400", "잘못된 요청입니다.", collect);
+        return ErrorResponse.builder()
+                .status("400")
+                .message("잘못된 요청입니다.")
+                .validation(collect)
+                .build();
     }
 }

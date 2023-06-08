@@ -20,8 +20,7 @@ import java.util.Map;
 public class PostController {
     private final PostService postService;
     @PostMapping("/posts")
-    public Map<Object, Object> post(@RequestBody @Validated PostCreate request){
+    public void post(@RequestBody @Validated PostCreate request){
         postService.write(request);
-        return Map.of();
     }
 }
