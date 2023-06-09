@@ -5,6 +5,7 @@ import com.blog.repository.PostRepository;
 import com.blog.request.PostCreate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -124,6 +127,38 @@ class PostControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(post.getId()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("titleaaaaa"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content").value(post.getContent()))
+                .andDo(MockMvcResultHandlers.print());
+
+    }
+
+    @Test
+    @DisplayName("글 여러개 조회")
+    void getList() throws Exception {
+        //given
+        Post post1 = Post.builder()
+                .title("title1")
+                .content("content1")
+                .build();
+        Post post2 = Post.builder()
+                .title("title2")
+                .content("content2")
+                .build();
+       /* postRepository.save(post1);
+        postRepository.save(post2);*/
+
+        postRepository.saveAll(List.of(post1,post2));
+
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.length()", Matchers.is(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].id").value(post1.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title").value("title1"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].content").value("content1"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].id").value(post2.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].title").value("title2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].content").value("content2"))
                 .andDo(MockMvcResultHandlers.print());
 
     }
