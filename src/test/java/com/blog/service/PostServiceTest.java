@@ -10,9 +10,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -69,27 +74,24 @@ class PostServiceTest {
     }
 
     @Test
-    @DisplayName("글 여러개 조회")
+    @DisplayName("글 1페이지 조회")
     void getList(){
         //given
-        Post post1 = Post.builder()
-                .title("제목입니다.")
-                .content("내용입니다.")
-                .build();
-        Post post2 = Post.builder()
-                .title("제목입니다.2")
-                .content("내용입니다.2")
-                .build();
-        /*Post save1 = postRepository.save(post1);
-        Post save2 = postRepository.save(post2);*/
+        List<Post> requestPosts = IntStream.range(0,30)
+                .mapToObj(i -> Post.builder()
+                        .title("제목" + i)
+                        .content("내용" + i)
+                        .build())
+                .collect(Collectors.toList());
+        postRepository.saveAll(requestPosts);
 
-        postRepository.saveAll(List.of(post1,post2));
+        PageRequest pageRequest = PageRequest.of(0,5, Sort.Direction.DESC, "id");
 
         //when
-        List<PostResponse> list = postService.getList();
+        List<PostResponse> list = postService.getList(pageRequest);
         //then
         assertNotNull(list);
-        assertThat(list.size()).isEqualTo(2L);
+        assertThat(list.size()).isEqualTo(5);
 
     }
 

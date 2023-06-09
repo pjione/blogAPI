@@ -6,6 +6,9 @@ import com.blog.response.PostResponse;
 import com.blog.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +28,8 @@ public class PostController {
        return postService.get(postId);
     }
     @GetMapping("/posts")
-    public ListResponse<List<PostResponse>> getList(){
-        List<PostResponse> list = postService.getList();
+    public ListResponse<List<PostResponse>> getList(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable){
+        List<PostResponse> list = postService.getList(pageable);
         return new ListResponse<>(list);
     }
 }

@@ -20,6 +20,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -135,30 +137,20 @@ class PostControllerTest {
     @DisplayName("글 여러개 조회")
     void getList() throws Exception {
         //given
-        Post post1 = Post.builder()
-                .title("title1")
-                .content("content1")
-                .build();
-        Post post2 = Post.builder()
-                .title("title2")
-                .content("content2")
-                .build();
-       /* postRepository.save(post1);
-        postRepository.save(post2);*/
-
-        postRepository.saveAll(List.of(post1,post2));
+        List<Post> list = IntStream.range(0,30)
+                .mapToObj(i -> Post.builder()
+                        .title("제목" + i)
+                        .content("내용" + i)
+                        .build())
+                .collect(Collectors.toList());
+        postRepository.saveAll(list);
 
         //expected
-        mockMvc.perform(MockMvcRequestBuilders.get("/posts")
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts?page=0")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.length()", Matchers.is(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].id").value(post1.getId()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title").value("title1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].content").value("content1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].id").value(post2.getId()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].title").value("title2"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].content").value("content2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.length()", Matchers.is(5)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].id", Matchers.is(30)))
                 .andDo(MockMvcResultHandlers.print());
 
     }
