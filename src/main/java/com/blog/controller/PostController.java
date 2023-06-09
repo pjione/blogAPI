@@ -22,7 +22,11 @@ import java.util.Map;
 public class PostController {
     private final PostService postService;
     @PostMapping("/posts")
-    public PostResponse post(@RequestBody @Validated PostCreate request){
-        return new PostResponse(postService.write(request));
+    public void post (@RequestBody @Validated PostCreate request) {
+        postService.write(request);
+    }
+    @GetMapping("/posts/{postId}")
+    public PostResponse get(@PathVariable Long postId){
+       return postService.get(postId);
     }
 }

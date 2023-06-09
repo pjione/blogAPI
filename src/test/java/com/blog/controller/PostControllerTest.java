@@ -107,4 +107,24 @@ class PostControllerTest {
         assertThat("내용입니다.").isEqualTo(post.getContent());
 
     }
+    @Test
+    @DisplayName("글 1개 조회")
+    void findOne() throws Exception {
+        //given
+       Post post = Post.builder()
+               .title("titleaaaaaaaaaaaa")
+               .content("content")
+               .build();
+       postRepository.save(post);
+
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts/{postId}", post.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(post.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("titleaaaaa"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content").value(post.getContent()))
+                .andDo(MockMvcResultHandlers.print());
+
+    }
 }

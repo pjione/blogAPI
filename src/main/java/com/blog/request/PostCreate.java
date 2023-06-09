@@ -12,7 +12,7 @@ public class PostCreate {
 
     @NotBlank(message = "{NotBlank.title}")
     private String title;
-    @NotBlank(message = "{NotBlank.content")
+    @NotBlank(message = "{NotBlank.content}")
     private String content;
 
     @Builder
