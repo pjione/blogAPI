@@ -145,5 +145,19 @@ class PostServiceTest {
         assertThat(changedPost.getContent()).isEqualTo("내용입니다.");
 
     }
+    @Test
+    @DisplayName("글 삭제")
+    void deletePost(){
+        Post post = Post.builder()
+                .title("제목입니다.")
+                .content("내용입니다.")
+                .build();
+        postRepository.save(post);
+
+        //when
+        postService.delete(post.getId());
+
+        assertEquals(0, postRepository.count());
+    }
 
 }
