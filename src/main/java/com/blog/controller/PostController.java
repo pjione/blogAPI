@@ -1,9 +1,11 @@
 package com.blog.controller;
 
 import com.blog.request.PostCreate;
+import com.blog.request.PostSearch;
 import com.blog.response.ListResponse;
 import com.blog.response.PostResponse;
 import com.blog.service.PostService;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -27,9 +29,14 @@ public class PostController {
     public PostResponse get(@PathVariable Long postId){
        return postService.get(postId);
     }
-    @GetMapping("/posts")
+    //@GetMapping("/posts")
     public ListResponse<List<PostResponse>> getList(@PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable){
         List<PostResponse> list = postService.getList(pageable);
+        return new ListResponse<>(list);
+    }
+    @GetMapping("/posts") //querydsl 페이징
+    public ListResponse<List<PostResponse>> getList(PostSearch postSearch){
+        List<PostResponse> list = postService.getListDsl(postSearch);
         return new ListResponse<>(list);
     }
 }

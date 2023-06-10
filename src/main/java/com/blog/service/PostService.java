@@ -3,6 +3,7 @@ package com.blog.service;
 import com.blog.domain.Post;
 import com.blog.repository.PostRepository;
 import com.blog.request.PostCreate;
+import com.blog.request.PostSearch;
 import com.blog.response.PostResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,4 +43,13 @@ public class PostService {
                 .map(PostResponse::new)
                 .collect(Collectors.toList());
     }
+
+    public List<PostResponse> getListDsl(PostSearch postSearch) {
+        return postRepository.getList(postSearch).stream()
+                .map(PostResponse::new)
+                .collect(Collectors.toList());
+    }
 }
+
+
+

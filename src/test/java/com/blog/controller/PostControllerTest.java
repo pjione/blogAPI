@@ -3,6 +3,7 @@ package com.blog.controller;
 import com.blog.domain.Post;
 import com.blog.repository.PostRepository;
 import com.blog.request.PostCreate;
+import com.blog.request.PostSearch;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
@@ -145,12 +146,13 @@ class PostControllerTest {
                 .collect(Collectors.toList());
         postRepository.saveAll(list);
 
+
         //expected
-        mockMvc.perform(MockMvcRequestBuilders.get("/posts?page=0")
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts?page=2")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.length()", Matchers.is(5)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].id", Matchers.is(30)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.length()", Matchers.is(10)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title").value("제목19"))
                 .andDo(MockMvcResultHandlers.print());
 
     }

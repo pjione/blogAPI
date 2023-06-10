@@ -3,6 +3,7 @@ package com.blog.service;
 import com.blog.domain.Post;
 import com.blog.repository.PostRepository;
 import com.blog.request.PostCreate;
+import com.blog.request.PostSearch;
 import com.blog.response.PostResponse;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,6 +93,30 @@ class PostServiceTest {
         //then
         assertNotNull(list);
         assertThat(list.size()).isEqualTo(5);
+
+    }
+    @Test
+    @DisplayName("글 1페이지 조회 - 쿼리dsl적용")
+    void getListDsl(){
+        //given
+        List<Post> requestPosts = IntStream.range(0,30)
+                .mapToObj(i -> Post.builder()
+                        .title("제목" + i)
+                        .content("내용" + i)
+                        .build())
+                .collect(Collectors.toList());
+        postRepository.saveAll(requestPosts);
+
+        PostSearch postSearch = PostSearch.builder()
+                .page(2)
+                .build();
+
+        //when
+        List<PostResponse> list = postService.getListDsl(postSearch);
+        //then
+        assertNotNull(list);
+        assertThat(list.size()).isEqualTo(10);
+        assertThat(list.get(0).getTitle()).isEqualTo("제목19");
 
     }
 
