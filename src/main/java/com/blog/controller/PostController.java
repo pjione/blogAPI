@@ -1,6 +1,7 @@
 package com.blog.controller;
 
 import com.blog.request.PostCreate;
+import com.blog.request.PostEdit;
 import com.blog.request.PostSearch;
 import com.blog.response.ListResponse;
 import com.blog.response.PostResponse;
@@ -22,7 +23,7 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
     @PostMapping("/posts")
-    public void post (@RequestBody @Validated PostCreate request) {
+    public void post(@RequestBody @Validated PostCreate request) {
         postService.write(request);
     }
     @GetMapping("/posts/{postId}")
@@ -38,5 +39,9 @@ public class PostController {
     public ListResponse<List<PostResponse>> getList(PostSearch postSearch){
         List<PostResponse> list = postService.getListDsl(postSearch);
         return new ListResponse<>(list);
+    }
+    @PatchMapping("/posts/{postId}")
+    public PostResponse edit(@PathVariable Long postId, @RequestBody @Validated PostEdit request){
+        return postService.edit(postId, request);
     }
 }

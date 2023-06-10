@@ -3,6 +3,7 @@ package com.blog.controller;
 import com.blog.domain.Post;
 import com.blog.repository.PostRepository;
 import com.blog.request.PostCreate;
+import com.blog.request.PostEdit;
 import com.blog.request.PostSearch;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
@@ -148,12 +149,39 @@ class PostControllerTest {
 
 
         //expected
-        mockMvc.perform(MockMvcRequestBuilders.get("/posts?page=2")
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.length()", Matchers.is(10)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title").value("제목19"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].title").value("제목29"))
                 .andDo(MockMvcResultHandlers.print());
+
+    }
+    @Test
+    @DisplayName("글 수정")
+    void updatePost() throws Exception {
+
+        //given
+        Post post = Post.builder()
+                .title("제목입니다.")
+                .content("내용입니다.")
+                .build();
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("제목변경")
+                .content("내용입니다.")
+                .build();
+
+        String json = objectMapper.writeValueAsString(postEdit);
+
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.patch("/posts/{postId}", post.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());//컨트롤러 요청 내용출력
 
     }
 }

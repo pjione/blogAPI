@@ -1,5 +1,6 @@
 package com.blog.domain;
 
+import com.blog.request.PostEdit;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,4 +24,11 @@ public class Post {
         this.title = title;
         this.content = content;
     }
+    public void edit(PostEdit postEdit){
+        /*this.title = title == null ? this.title : title;
+        this.content = content == null ? this.content : title;*/
+        this.title = postEdit.getTitle();
+        this.content = postEdit.getContent();
+    }
+
 }

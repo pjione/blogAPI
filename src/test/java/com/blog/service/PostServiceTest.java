@@ -3,6 +3,7 @@ package com.blog.service;
 import com.blog.domain.Post;
 import com.blog.repository.PostRepository;
 import com.blog.request.PostCreate;
+import com.blog.request.PostEdit;
 import com.blog.request.PostSearch;
 import com.blog.response.PostResponse;
 import org.assertj.core.api.Assertions;
@@ -117,6 +118,31 @@ class PostServiceTest {
         assertNotNull(list);
         assertThat(list.size()).isEqualTo(10);
         assertThat(list.get(0).getTitle()).isEqualTo("제목19");
+
+    }
+    @Test
+    @DisplayName("글 수정")
+    void updatePost(){
+        //given
+        Post post = Post.builder()
+                .title("제목입니다.")
+                .content("내용입니다.")
+                .build();
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("제목변경")
+                .content("내용입니다.")
+                .build();
+        //when
+       postService.edit(post.getId(), postEdit);
+
+        //then
+        Post changedPost = postRepository.findById(post.getId())
+                .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다."));
+        
+        assertThat(changedPost.getTitle()).isEqualTo("제목변경");
+        assertThat(changedPost.getContent()).isEqualTo("내용입니다.");
 
     }
 

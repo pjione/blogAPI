@@ -8,13 +8,11 @@ import javax.annotation.PostConstruct;
 public class PostSearch {
 
     private final Integer page;
-
     private final int size = 10;
 
     @Builder
     public PostSearch(Integer page) {
         this.page = page == null ? 1 : page;
-
     }
 
     public int getOffset(){
