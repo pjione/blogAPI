@@ -1,11 +1,11 @@
 package com.blog.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Getter
-public class ValidationDto {
+@AllArgsConstructor
+public class Validation {
     private final String fieldName;
     private final String errorMessage;
 

@@ -81,8 +81,29 @@ class PostControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("400"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.validation[0].fieldName").value("title"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.validation[0].errorMessage").value("제목을 입력해주세요."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.validation.fieldName").value("title"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.validation.errorMessage").value("제목을 입력해주세요."))
+                //.andExpect(MockMvcResultMatchers.content().string("hello"))
+                .andDo(MockMvcResultHandlers.print());//컨트롤러 요청 내용출력
+
+    }
+    @Test
+    @DisplayName("/posts 요청시 title, content값은 필수다")
+    void test22() throws Exception {
+
+        PostCreate postCreate = PostCreate.builder()
+                .build();
+        String json = objectMapper.writeValueAsString(postCreate);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+                )
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("잘못된 요청입니다."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.validations[1].fieldName").value("title"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.validations[1].errorMessage").value("제목을 입력해주세요."))
                 //.andExpect(MockMvcResultMatchers.content().string("hello"))
                 .andDo(MockMvcResultHandlers.print());//컨트롤러 요청 내용출력
 
@@ -202,4 +223,61 @@ class PostControllerTest {
                 .andDo(MockMvcResultHandlers.print());//컨트롤러 요청 내용출력
 
     }
+    @Test
+    @DisplayName("글 1개 조회 실패 테스트")
+    void findFail() throws Exception {
+
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts/{postId}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andDo(MockMvcResultHandlers.print());//컨트롤러 요청 내용출력
+
+    }
+    @Test
+    @DisplayName("글 삭제 실패 테스트")
+    void deleteFail() throws Exception {
+
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.delete("/posts/{postId}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andDo(MockMvcResultHandlers.print());//컨트롤러 요청 내용출력
+
+    }
+    @Test
+    @DisplayName("글 수정 실패 테스트")
+    void editFail() throws Exception {
+        //given
+        PostEdit postEdit = PostEdit.builder()
+                .title("제목변경")
+                .content("내용입니다.")
+                .build();
+
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.patch("/posts/{postId}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(postEdit)))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andDo(MockMvcResultHandlers.print());//컨트롤러 요청 내용출력
+
+    }
+    @Test
+    @DisplayName("특정 문자 제목에 포함 불가")
+    void postFail() throws Exception {
+        //given
+        PostCreate postCreate = PostCreate.builder()
+                .title("불가테스트입니다.")
+                .content("내용입니다.")
+                .build();
+
+        //expected
+        mockMvc.perform(MockMvcRequestBuilders.post("/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(postCreate)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());//컨트롤러 요청 내용출력
+
+    }
+
 }

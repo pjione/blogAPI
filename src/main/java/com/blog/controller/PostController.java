@@ -1,5 +1,6 @@
 package com.blog.controller;
 
+import com.blog.exception.InvalidRequest;
 import com.blog.request.PostCreate;
 import com.blog.request.PostEdit;
 import com.blog.request.PostSearch;
@@ -24,6 +25,9 @@ public class PostController {
     private final PostService postService;
     @PostMapping("/posts")
     public void post(@RequestBody @Validated PostCreate request) {
+        if(request.getTitle().contains("불가")){
+            throw new InvalidRequest("title", "제목에 불가를 포함할 수 없습니다.");
+        }
         postService.write(request);
     }
 
