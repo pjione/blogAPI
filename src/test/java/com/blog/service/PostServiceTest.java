@@ -1,6 +1,7 @@
 package com.blog.service;
 
 import com.blog.domain.Post;
+import com.blog.exception.PostNotFound;
 import com.blog.repository.PostRepository;
 import com.blog.request.PostCreate;
 import com.blog.request.PostEdit;
@@ -74,6 +75,25 @@ class PostServiceTest {
         assertThat(postResponse.getId()).isEqualTo(save.getId());
 
     }
+    @Test
+    @DisplayName("글 한개 조회 실패")
+    void findPostFail(){
+        //given
+        Post post = Post.builder()
+                .title("제목입니다.")
+                .content("내용입니다.")
+                .build();
+
+        Post save = postRepository.save(post);
+
+        //expected
+        PostNotFound e = assertThrows(PostNotFound.class, () -> postService.get(post.getId() + 1L), "예외처리 실패");
+        assertEquals("존재하지 않는 글입니다.", e.getMessage());
+
+
+        //assertThatThrownBy(() -> postService.get(post.getId() + 1L)).isInstanceOf(IllegalArgumentException.class);
+
+    }
 
     @Test
     @DisplayName("글 1페이지 조회")
@@ -139,11 +159,31 @@ class PostServiceTest {
 
         //then
         Post changedPost = postRepository.findById(post.getId())
-                .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다."));
+                .orElseThrow(() -> new PostNotFound());
+
         
         assertThat(changedPost.getTitle()).isEqualTo("제목변경");
         assertThat(changedPost.getContent()).isEqualTo("내용입니다.");
 
+    }
+    @Test
+    @DisplayName("글 수정 실패")
+    void updatePostFail(){
+        //given
+        Post post = Post.builder()
+                .title("제목입니다.")
+                .content("내용입니다.")
+                .build();
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("제목변경")
+                .content("내용입니다.")
+                .build();
+
+        //expected
+        PostNotFound e = assertThrows(PostNotFound.class, () -> postService.edit(post.getId() + 1L, postEdit), "예외처리 실패");
+        //assertEquals("존재하지 않는 글입니다.", e.getMessage());
     }
     @Test
     @DisplayName("글 삭제")
@@ -158,6 +198,19 @@ class PostServiceTest {
         postService.delete(post.getId());
 
         assertEquals(0, postRepository.count());
+    }
+    @Test
+    @DisplayName("글 삭제 실패")
+    void deletePostFail(){
+        Post post = Post.builder()
+                .title("제목입니다.")
+                .content("내용입니다.")
+                .build();
+        postRepository.save(post);
+
+        //when
+        PostNotFound e = assertThrows(PostNotFound.class, () -> postService.delete(post.getId() + 1L), "예외처리 실패");
+        assertEquals("존재하지 않는 글입니다.", e.getMessage());
     }
 
 }
