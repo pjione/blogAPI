@@ -1,14 +1,23 @@
 = Blog API
-:toc:
+:icons: font
+:source-highlighter:: highlight
+:toc: left
+:toclevels:2
+:sectlinks:
 
 == 글 1개 조회
 
-
 === 요청
-include::{snippets}/index/http-request.adoc[]
+include::{snippets}/post-inquiry/http-request.adoc[]
+include::{snippets}/post-inquiry/path-parameters.adoc[]
 
 === 응답
-include::{snippets}/index/http-response.adoc[]
+include::{snippets}/post-inquiry/http-response.adoc[]
+include::{snippets}/post-inquiry/response-fields.adoc[]
 
-=== httpie
-include::{snippets}/index/httpie-request.adoc[]
+
+== 글 등록
+
+=== 요청
+include::{snippets}/post-create/request-fields.adoc[]
+
