@@ -1,12 +1,17 @@
 <script setup lang = "ts">
-
+import axios from "axios";
 
 import {ref} from "vue";
 
 const title = ref("")
 const content = ref("")
 
-
+const write = function(){
+  axios.post("/backend-api/posts",{
+    title: title.value,
+    content: content.value
+  })
+}
 </script>
 
 <template>
