@@ -67,6 +67,9 @@ asciidoctor {
 
 //(7)
 bootJar {
+
+    enabled = true
+
     dependsOn asciidoctor
 
     copy{
@@ -76,5 +79,8 @@ bootJar {
   /*  from ("${asciidoctor.outputDir}/html5") {
         into 'static/docs'
     }*/
+}
+jar{
+    enabled = false
 }
 
