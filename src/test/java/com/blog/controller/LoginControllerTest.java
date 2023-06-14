@@ -5,6 +5,7 @@ import com.blog.domain.Session;
 import com.blog.repository.MemberRepository;
 import com.blog.repository.SessionRepository;
 import com.blog.request.Login;
+import com.blog.request.SignUp;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
@@ -41,6 +42,23 @@ class LoginControllerTest {
     @BeforeEach
     void clean(){
         memberRepository.deleteAll();
+    }
+
+    @Test
+    @DisplayName("회원가입 성공")
+    void signUpSuccess() throws Exception {
+
+        SignUp request = SignUp.builder()
+                .email("1234@naver.com")
+                .password("1234")
+                .name("jiwon")
+                .build();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/signUp")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
