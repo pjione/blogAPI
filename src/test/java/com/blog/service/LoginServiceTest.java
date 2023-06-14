@@ -1,8 +1,10 @@
 package com.blog.service;
 
+import com.blog.crypto.PasswordEncoder;
 import com.blog.domain.Member;
 import com.blog.domain.Session;
 import com.blog.exception.AlreadyExistsEmailException;
+import com.blog.exception.InvalidLoginInformation;
 import com.blog.repository.MemberRepository;
 import com.blog.repository.PostRepository;
 import com.blog.repository.SessionRepository;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.blog.domain.QMember.member;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
@@ -78,19 +81,42 @@ public class LoginServiceTest {
     @Test
     @DisplayName("로그인 성공 후 세션생성")
     void loginSuccess(){
-        Member member = memberRepository.save(Member.builder()
-                .name("jiwon")
+        PasswordEncoder encoder = new PasswordEncoder();
+        String encrypt = encoder.encrypt("1234");
+
+        memberRepository.save(Member.builder()
                 .email("jiwon@naver.com")
-                .password("1234")
+                .name("haha")
+                .password(encrypt)
                 .build());
+
 
         Login request = Login.builder()
                 .email("jiwon@naver.com")
                 .password("1234")
                 .build();
-        loginService.login(request);
+        String session = loginService.login(request);
 
-        assertThat(sessionRepository.findByMember(member).stream().count()).isEqualTo(1L);
+        assertThat(session).isNotBlank();
+    }
 
+    @Test
+    @DisplayName("로그인 실패")
+    void loginFail(){
+        PasswordEncoder encoder = new PasswordEncoder();
+        String encrypt = encoder.encrypt("1234");
+
+        memberRepository.save(Member.builder()
+                .email("jiwon@naver.com")
+                .name("haha")
+                .password(encrypt)
+                .build());
+
+        Login request = Login.builder()
+                .email("jiwon@naver.com")
+                .password("5678")
+                .build();
+
+        assertThatThrownBy(() -> loginService.login(request)).isInstanceOf(InvalidLoginInformation.class);
     }
 }

@@ -1,5 +1,6 @@
 package com.blog.service;
 
+import com.blog.crypto.PasswordEncoder;
 import com.blog.domain.Member;
 import com.blog.domain.Session;
 import com.blog.exception.AlreadyExistsEmailException;
@@ -25,8 +26,16 @@ public class LoginService {
     private final SessionRepository sessionRepository;
     @Transactional
     public String login(Login request){
-        Member member = memberRepository.findByEmailAndPassword(request.getEmail(), request.getPassword())
-                .orElseThrow(InvalidLoginInformation::new);
+       /* Member member = memberRepository.findByEmailAndPassword(request.getEmail(), request.getPassword())
+                .orElseThrow(InvalidLoginInformation::new);*/
+        Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(InvalidLoginInformation::new);
+
+        PasswordEncoder passwordEncoder = new PasswordEncoder();
+        boolean matches = passwordEncoder.matches(request.getPassword(), member.getPassword());
+
+        if(!matches){
+            throw new InvalidLoginInformation();
+        }
         Session session = Session.builder()
                 .member(member)
                 .build();
@@ -42,9 +51,8 @@ public class LoginService {
             throw new AlreadyExistsEmailException();
         }
 
-        SCryptPasswordEncoder encoder = new SCryptPasswordEncoder(16, 8, 1, 32, 64);
-
-        String encryptedPassword = encoder.encode(signUp.getPassword());
+        PasswordEncoder passwordEncoder = new PasswordEncoder();
+        String encryptedPassword = passwordEncoder.encrypt(signUp.getPassword());
 
         Member member = Member.builder()
                 .email(signUp.getEmail())

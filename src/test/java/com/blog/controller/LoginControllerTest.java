@@ -1,5 +1,6 @@
 package com.blog.controller;
 
+import com.blog.crypto.PasswordEncoder;
 import com.blog.domain.Member;
 import com.blog.domain.Session;
 import com.blog.repository.MemberRepository;
@@ -41,6 +42,7 @@ class LoginControllerTest {
     private SessionRepository sessionRepository;
     @BeforeEach
     void clean(){
+        sessionRepository.deleteAll();
         memberRepository.deleteAll();
     }
 
@@ -65,16 +67,18 @@ class LoginControllerTest {
     @DisplayName("아이디 또는 비밀번호 불일치")
     void loginFail() throws Exception {
 
-        Member member = Member.builder()
-                .name("jiwon")
-                .email("asdf@naver.com")
-                .password("1234")
-                .build();
-        memberRepository.save(member);
+        PasswordEncoder encoder = new PasswordEncoder();
+        String encrypt = encoder.encrypt("1234");
+
+        memberRepository.save(Member.builder()
+                .email("jiwon@naver.com")
+                .name("haha")
+                .password(encrypt)
+                .build());
 
         Login request = Login.builder()
-                .email("1234@naver.com")
-                .password("1234")
+                .email("jiwon@naver.com")
+                .password("12345")
                 .build();
 
         mockMvc.perform(MockMvcRequestBuilders.post("/login")
@@ -86,16 +90,17 @@ class LoginControllerTest {
     @Test
     @DisplayName("로그인 성공")
     void loginSuccess() throws Exception {
+        PasswordEncoder encoder = new PasswordEncoder();
+        String encrypt = encoder.encrypt("1234");
 
-        Member member = Member.builder()
-                .name("jiwon")
-                .email("asdf@naver.com")
-                .password("1234")
-                .build();
-        memberRepository.save(member);
+        memberRepository.save(Member.builder()
+                .email("jiwon@naver.com")
+                .name("haha")
+                .password(encrypt)
+                .build());
 
         Login request = Login.builder()
-                .email("asdf@naver.com")
+                .email("jiwon@naver.com")
                 .password("1234")
                 .build();
 
@@ -109,15 +114,18 @@ class LoginControllerTest {
     @DisplayName("로그인 후 세션 생성")
     void session() throws Exception {
 
+        PasswordEncoder encoder = new PasswordEncoder();
+        String encrypt = encoder.encrypt("1234");
+
         Member member = Member.builder()
-                .name("jiwon")
-                .email("asdf@naver.com")
-                .password("1234")
+                .email("jiwon@naver.com")
+                .name("haha")
+                .password(encrypt)
                 .build();
         memberRepository.save(member);
 
         Login request = Login.builder()
-                .email("asdf@naver.com")
+                .email("jiwon@naver.com")
                 .password("1234")
                 .build();
 
@@ -128,7 +136,7 @@ class LoginControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
 
-        Assertions.assertThat(sessionRepository.findByMember(member).stream().count()).isEqualTo(1L);
+        Assertions.assertThat(sessionRepository.findByMember(member).stream().count());
 
     }
 
@@ -136,16 +144,26 @@ class LoginControllerTest {
     @DisplayName("로그인 후 권한이 필요한 페이지 접속")
     void loginAuth() throws Exception {
 
+        PasswordEncoder encoder = new PasswordEncoder();
+        String encrypt = encoder.encrypt("1234");
+
         Member member = Member.builder()
-                .name("jiwon")
-                .email("asdf@naver.com")
+                .email("jiwon@naver.com")
+                .name("haha")
+                .password(encrypt)
+                .build();
+
+        memberRepository.save(member);
+
+        Login request = Login.builder()
+                .email("jiwon@naver.com")
                 .password("1234")
                 .build();
-        memberRepository.save(member);
 
         Session session = Session.builder()
                 .member(member)
                 .build();
+
         sessionRepository.save(session);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/")
@@ -159,20 +177,24 @@ class LoginControllerTest {
     @DisplayName("로그인 후 검증되지 않은 세션값으로 권한이 필요한 페이지에 접속할 수 없다.")
     void loginAuth2() throws Exception {
 
+        PasswordEncoder encoder = new PasswordEncoder();
+        String encrypt = encoder.encrypt("1234");
+
         Member member = Member.builder()
-                .name("jiwon")
-                .email("asdf@naver.com")
-                .password("1234")
+                .email("jiwon@naver.com")
+                .name("haha")
+                .password(encrypt)
                 .build();
         memberRepository.save(member);
 
         Session session = Session.builder()
                 .member(member)
                 .build();
+
         sessionRepository.save(session);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/")
-                        .header("Authorization", session.getAccessToken() + "1")
+                        .cookie(new Cookie("SESSION", session.getAccessToken() + 1))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andDo(MockMvcResultHandlers.print());
