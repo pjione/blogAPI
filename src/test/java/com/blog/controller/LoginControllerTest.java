@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import javax.servlet.http.Cookie;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -107,7 +108,6 @@ class LoginControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken", Matchers.notNullValue()))
                 .andDo(MockMvcResultHandlers.print());
 
         Assertions.assertThat(sessionRepository.findByMember(member).stream().count()).isEqualTo(1L);
@@ -131,7 +131,7 @@ class LoginControllerTest {
         sessionRepository.save(session);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/")
-                        .header("Authorization", session.getAccessToken())
+                        .cookie(new Cookie("SESSION", session.getAccessToken()))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
