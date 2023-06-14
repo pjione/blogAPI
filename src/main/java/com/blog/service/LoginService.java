@@ -10,6 +10,7 @@ import com.blog.repository.SessionRepository;
 import com.blog.request.Login;
 import com.blog.request.SignUp;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,9 +42,13 @@ public class LoginService {
             throw new AlreadyExistsEmailException();
         }
 
+        SCryptPasswordEncoder encoder = new SCryptPasswordEncoder(16, 8, 1, 32, 64);
+
+        String encryptedPassword = encoder.encode(signUp.getPassword());
+
         Member member = Member.builder()
                 .email(signUp.getEmail())
-                .password(signUp.getPassword())
+                .password(encryptedPassword)
                 .name(signUp.getName())
                 .build();
         memberRepository.save(member);
