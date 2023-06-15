@@ -44,6 +44,8 @@ public class LoginServiceTest {
     @Test
     @DisplayName("회원가입 성공")
     void signUp(){
+        PasswordEncoder encoder = new PasswordEncoder();
+
         SignUp signUp = SignUp.builder()
                 .name("jiwon")
                 .email("jiwon@naver.com")
@@ -56,6 +58,7 @@ public class LoginServiceTest {
         List<Member> list = memberRepository.findAll();
         assertThat(list.size()).isEqualTo(1);
         assertThat(list.get(0).getEmail()).isEqualTo("jiwon@naver.com");
+        assertThat(encoder.matches("1234", list.get(0).getPassword())).isTrue();
     }
 
     @Test
